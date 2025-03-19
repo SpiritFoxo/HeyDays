@@ -1,0 +1,115 @@
+.registration-container {
+    display: flex;
+    height: 100vh;
+    background-color: #8461D6;
+  }
+  
+  .registration-form-container {
+    flex: 1;
+    max-width: 450px;
+    padding: 2rem;
+    background-color: #ffffff;
+    border-radius: 8px;
+    -webkit-box-shadow: 1px 19px 39px 0px rgba(0, 0, 0, 0.32);
+    -moz-box-shadow: 1px 19px 39px 0px rgba(0, 0, 0, 0.32);
+    box-shadow: 1px 19px 39px 0px rgba(0, 0, 0, 0.32);
+    margin: auto;
+  }
+  
+  .welcome-text {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    padding: 2rem;
+  }
+  
+  .registration-title {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 1.5rem;
+    color: #333;
+  }
+  
+  .form-group {
+    margin-bottom: 1rem;
+  }
+  
+  input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f8f8f8;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+  
+  input:focus {
+    border-color: #9370DB;
+  }
+  
+  .input-error {
+    border-color: #ff3860;
+  }
+  
+  .error-message {
+    color: #ff3860;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    display: block;
+  }
+  
+  .login-link {
+    text-align: center;
+    margin: 1rem 0;
+  }
+  
+  .login-link a {
+    color: #704CF5;
+    text-decoration: none;
+    font-size: 0.9rem;
+  }
+  
+  .login-link a:hover {
+    text-decoration: underline;
+  }
+  
+  .submit-button {
+    width: 100%;
+    padding: 0.75rem;
+    background: rgb(197,132,255);
+    background: -moz-linear-gradient(169deg, rgba(197,132,255,1) 0%, rgba(113,120,255,1) 100%);
+    background: -webkit-linear-gradient(169deg, rgba(197,132,255,1) 0%, rgba(113,120,255,1) 100%);
+    background: linear-gradient(169deg, rgba(197,132,255,1) 0%, rgba(113,120,255,1) 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#c584ff",endColorstr="#7178ff",GradientType=1);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 1rem;
+  }
+  
+  .submit-button:hover {
+    background-color: #8a60d4;
+  }
+  
+  @media (max-width: 768px) {
+    .registration-container {
+      flex-direction: column;
+    }
+    
+    .registration-form-container {
+      max-width: 100%;
+      border-radius: 0;
+    }
+    
+    .welcome-text {
+      display: none;
+    }
+  }

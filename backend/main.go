@@ -1,14 +1,30 @@
 package main
 
 import (
+	"heydays/handlers"
+	"heydays/models"
+	"log"
 	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
+
+func DbInit() *gorm.DB {
+	db, err := models.Setup()
+	if err != nil {
+		log.Println("Connection error")
+	}
+	return db
+}
 
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
+
+	db := DbInit()
+
+	server := handlers.NewServer(db)
 
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
@@ -17,6 +33,10 @@ func SetupRouter() *gin.Engine {
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
+
+	router := r.Group("/api")
+	router.POST("/register", server.Register)
+	router.POST("/login", server.Login)
 	return r
 
 }
