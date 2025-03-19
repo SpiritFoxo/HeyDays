@@ -1,0 +1,105 @@
+/* MainPage.css */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f2f5;
+  }
+  
+  .main-container {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    grid-template-rows: 50px 1fr;
+    grid-template-areas:
+      "header header"
+      "sidebar content";
+    height: 100vh;
+  }
+  
+  /* Header Styles */
+  .app-header {
+    grid-area: header;
+    background: rgb(138,99,255);
+    background: -moz-linear-gradient(122deg, rgba(138,99,255,1) 0%, rgba(68,48,116,1) 100%);
+    background: -webkit-linear-gradient(122deg, rgba(138,99,255,1) 0%, rgba(68,48,116,1) 100%);
+    background: linear-gradient(122deg, rgba(138,99,255,1) 0%, rgba(68,48,116,1) 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#8a63ff",endColorstr="#443074",GradientType=1);
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+  }
+  
+  .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  
+  /* Sidebar Styles */
+  .sidebar {
+    grid-area: sidebar;
+    background-color: #f0f0f0;
+    border-right: 1px solid #e0e0e0;
+    padding: 20px 0;
+  }
+  
+  .nav-menu ul {
+    list-style: none;
+  }
+  
+  .nav-menu li {
+    margin-bottom: 10px;
+  }
+  
+  .nav-menu a {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    color: #333;
+    text-decoration: none;
+    transition: background-color 0.3s;
+  }
+  
+  .nav-menu a:hover {
+    background-color: #e0e0e0;
+  }
+  
+  .nav-menu li.active a {
+    background-color: #e0e0e0;
+    color: #9370DB;
+    font-weight: bold;
+  }
+  
+  .icon {
+    margin-right: 10px;
+    font-size: 1.2rem;
+  }
+  
+  /* Main Content Area */
+  .content-area {
+    grid-area: content;
+    padding: 20px;
+    overflow-y: auto;
+  }
+  
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .main-container {
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        "header"
+        "content";
+    }
+    
+    .sidebar {
+      display: none;
+    }
+    
+    /* You might want to add a mobile menu button and dropdown here */
+  }
