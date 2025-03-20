@@ -10,17 +10,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type RegisterInput struct {
-	Username    string `json:"username" binding:"required"`
-	Password    string `json:"password" binding:"required"`
-	PhoneNumber string `json:"phone" binding:"required"`
-}
-
-type LoginInput struct {
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
-}
-
 type Server struct {
 	db *gorm.DB
 }
@@ -30,6 +19,14 @@ func NewServer(db *gorm.DB) *Server {
 }
 
 func (s *Server) Register(c *gin.Context) {
+
+	type RegisterInput struct {
+		Email    string `json:"email" binding:"required"`
+		Name     string `json:"name" binding:"required"`
+		Surname  string `json:"surname" binding:"required"`
+		Password string `json:"password" binding:"required"`
+	}
+
 	var input RegisterInput
 
 	if err := c.ShouldBind(&input); err != nil {
@@ -37,7 +34,7 @@ func (s *Server) Register(c *gin.Context) {
 		return
 	}
 
-	user := models.User{}
+	user := models.User{Email: input.Email, Name: input.Name, Surname: input.Surname, Password: input.Password}
 	user.HashPassword()
 
 	if err := s.db.Create(&user).Error; err != nil {
@@ -74,6 +71,12 @@ func (s *Server) LoginCheck(username, password string) (string, error) {
 }
 
 func (s *Server) Login(c *gin.Context) {
+
+	type LoginInput struct {
+		Email    string `json:"email" binding:"required"`
+		Password string `json:"password" binding:"required"`
+	}
+
 	var input LoginInput
 
 	if err := c.ShouldBind(&input); err != nil {
@@ -81,7 +84,7 @@ func (s *Server) Login(c *gin.Context) {
 		return
 	}
 
-	user := models.User{}
+	user := models.User{Email: input.Email, Password: input.Password}
 
 	token, err := s.LoginCheck(user.Email, user.Password)
 

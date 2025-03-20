@@ -2,6 +2,7 @@ package main
 
 import (
 	"heydays/handlers"
+	"heydays/middleware"
 	"heydays/models"
 	"log"
 	"time"
@@ -37,6 +38,10 @@ func SetupRouter() *gin.Engine {
 	router := r.Group("/api")
 	router.POST("/register", server.Register)
 	router.POST("/login", server.Login)
+
+	auth := r.Group("/auth")
+	auth.Use(middleware.JWTMiddleware())
+
 	return r
 
 }

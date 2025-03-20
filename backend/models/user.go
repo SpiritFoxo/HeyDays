@@ -10,11 +10,11 @@ import (
 
 type User struct {
 	gorm.Model
-	Email    string `gorm:"uniqueIndex;not null"`
-	Name     string `gorm:"not null"`
-	Surname  string `gorm:"not null"`
-	Avatar   string
-	Password string `gorm:"not null"`
+	Email        string `gorm:"uniqueIndex;not null"`
+	Name         string `gorm:"not null"`
+	Surname      string `gorm:"not null"`
+	ProfilePhoto string
+	Password     string `gorm:"not null"`
 
 	Friends        []*User    `gorm:"many2many:friendships;joinForeignKey:UserID;joinReferences:FriendID"`
 	Posts          []Post     `gorm:"foreignKey:UserID"`
