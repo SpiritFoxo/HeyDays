@@ -4,13 +4,15 @@ import './RegistrationPage.css';
 const RegistrationForm = () => {
   const [formData, setFormData] = useState({
     email: '',
-    firstName: '',
-    lastName: '',
+    name: '',
+    surname: '',
     password: '',
     confirmPassword: ''
   });
 
   const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [registerSuccess, setRegisterSuccess] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -23,31 +25,26 @@ const RegistrationForm = () => {
   const validate = () => {
     const newErrors = {};
     
-    // Email validation
     if (!formData.email) {
       newErrors.email = 'Email обязателен';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Неверный формат email';
     }
-    
-    // Name validation
-    if (!formData.firstName) {
-      newErrors.firstName = 'Имя обязательно';
+
+    if (!formData.name) {
+      newErrors.name = 'Имя обязательно';
     }
     
-    // Last name validation
-    if (!formData.lastName) {
-      newErrors.lastName = 'Фамилия обязательна';
+    if (!formData.surname) {
+      newErrors.surname = 'Фамилия обязательна';
     }
     
-    // Password validation
     if (!formData.password) {
       newErrors.password = 'Пароль обязателен';
     } else if (formData.password.length < 6) {
       newErrors.password = 'Пароль должен содержать минимум 6 символов';
     }
-    
-    // Confirm password validation
+
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Пароли не совпадают';
     }
@@ -55,19 +52,66 @@ const RegistrationForm = () => {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     const validationErrors = validate();
     
     if (Object.keys(validationErrors).length === 0) {
-      // Submit form data to your backend API
       console.log('Form submitted successfully', formData);
-      // Here you would typically make an API call to register the user
-      // For example: registerUser(formData);
+      setIsLoading(true);
+      
+      try {
+        const apiData = {
+          email: formData.email,
+          name: formData.name,
+          surname: formData.surname,
+          password: formData.password
+        };
+        
+        const response = await fetch('http://localhost:8080/api/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(apiData),
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Ошибка при регистрации');
+        }
+        const data = await response.json();
+        console.log('Registration successful', data);
+
+        if (data.token) {
+          localStorage.setItem('token', data.token);
+        }
+        
+        setRegisterSuccess(true);
+        window.location.href = '/login';
+      } catch (error) {
+        console.error('Registration error:', error);
+        
+        if (error.message.includes('email')) {
+          setErrors({
+            ...validationErrors,
+            email: 'Email уже используется',
+            form: 'Ошибка при регистрации'
+          });
+        } else {
+          setErrors({
+            ...validationErrors,
+            form: 'Ошибка при регистрации: ' + error.message
+          });
+        }
+      } finally {
+        setIsLoading(false);
+      }
     } else {
       setErrors(validationErrors);
     }
+
   };
 
   return (
@@ -91,25 +135,25 @@ const RegistrationForm = () => {
           <div className="form-group">
             <input
               type="text"
-              name="firstName"
+              name="name"
               placeholder="Имя"
-              value={formData.firstName}
+              value={formData.name}
               onChange={handleChange}
-              className={errors.firstName ? 'input-error' : ''}
+              className={errors.name ? 'input-error' : ''}
             />
-            {errors.firstName && <span className="error-message">{errors.firstName}</span>}
+            {errors.name && <span className="error-message">{errors.name}</span>}
           </div>
           
           <div className="form-group">
             <input
               type="text"
-              name="lastName"
+              name="surname"
               placeholder="Фамилия"
-              value={formData.lastName}
+              value={formData.surname}
               onChange={handleChange}
-              className={errors.lastName ? 'input-error' : ''}
+              className={errors.surname ? 'input-error' : ''}
             />
-            {errors.lastName && <span className="error-message">{errors.lastName}</span>}
+            {errors.surname && <span className="error-message">{errors.surname}</span>}
           </div>
           
           <div className="form-group">

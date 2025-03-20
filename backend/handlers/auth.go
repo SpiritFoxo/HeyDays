@@ -45,12 +45,12 @@ func (s *Server) Register(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"message": "User created"})
 }
 
-func (s *Server) LoginCheck(username, password string) (string, error) {
+func (s *Server) LoginCheck(email, password string) (string, error) {
 	var err error
 
 	user := models.User{}
 
-	if err = s.db.Model(models.User{}).Where("username=?", username).Take(&user).Error; err != nil {
+	if err = s.db.Model(models.User{}).Where("email=?", email).Take(&user).Error; err != nil {
 		return "", err
 	}
 
