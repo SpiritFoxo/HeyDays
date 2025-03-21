@@ -38,9 +38,11 @@ func SetupRouter() *gin.Engine {
 	router := r.Group("/api")
 	router.POST("/register", server.Register)
 	router.POST("/login", server.Login)
+	router.GET("/profile/:userId", server.GetStrangerProfileInfo)
 
 	auth := r.Group("/auth")
 	auth.Use(middleware.JWTMiddleware())
+	auth.GET("/profile", server.GetProfileInfo)
 
 	return r
 

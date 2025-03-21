@@ -13,7 +13,7 @@ type User struct {
 	Email        string `gorm:"size:50;uniqueIndex;not null"`
 	Name         string `gorm:"size:32;not null"`
 	Surname      string `gorm:"size:32;not null"`
-	ProfilePhoto string
+	ProfilePhoto string `gorm:"default: '"`
 	Password     string `gorm:"not null"`
 
 	Friends        []*User    `gorm:"many2many:friendships;joinForeignKey:UserID;joinReferences:FriendID"`

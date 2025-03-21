@@ -1,0 +1,96 @@
+.content-area{
+    display: flex;
+    width: 75rem;
+    padding-left: 4rem;
+    background: none;
+}
+
+.profile-container{
+    display: flex;
+    width: 100%;
+    background-color: #F4F4F4;
+}
+
+
+.parent {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+    gap: 2px;
+}
+    
+.profile-banner {
+    grid-column: span 5 / span 5;
+}
+
+.profile-banner img{
+    width: 100%;
+}
+
+.main-info {
+    grid-column: span 5 / span 5;
+    grid-row-start: 2;
+}
+
+.main-info img{
+    width: 20rem;
+    position: relative;
+    top: -12rem;
+    left: 2.2rem;
+}
+
+.main-info p{
+    font-size: 6rem;
+}
+
+.main-info-container{
+    display: flex;
+    gap: 7rem;
+}
+
+.social-menu {
+    grid-column: span 2 / span 2;
+    grid-row: span 3 / span 3;
+    grid-row-start: 3;
+}
+
+.user-posts {
+    grid-column: span 3 / span 3;
+    grid-row: span 3 / span 3;
+    grid-column-start: 3;
+    grid-row-start: 3;
+}
+
+
+.social-buttons{
+    position: relative;
+    top: -10rem;
+    padding: 1.5rem;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    border-radius: 1rem;
+    width: 20rem;
+    margin-left: 2rem;
+}
+
+.social-button{
+    background-color: #8A63FF;
+    width: 17rem;
+    height: 2.5rem;
+    border-radius: 3rem;
+    border-style: none;
+    color: white;
+}
+
+.posts-container{
+    background-color: white;
+    width: 45rem;
+    height: 30rem;
+    position: relative;
+    top: -12rem;
+    right: 4rem;
+}
+

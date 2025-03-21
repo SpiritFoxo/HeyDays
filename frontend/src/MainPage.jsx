@@ -59,6 +59,7 @@ const MainPage = () => {
       <main className="content-area">
         <Routes>
           <Route path="profile" element={<Profile />} />
+          <Route path="/profile/:userId" element={<Profile />} />
           <Route path="feed" element={<Feed />} />
           <Route path="messages" element={<Messages />} />
           <Route path="friends" element={<Friends />} />
