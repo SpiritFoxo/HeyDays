@@ -47,3 +47,5 @@ func (s *Server) GetStrangerProfileInfo(c *gin.Context) {
 		"profile_photo": user.ProfilePhoto,
 	})
 }
+
+//update profile
