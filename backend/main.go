@@ -35,19 +35,24 @@ func SetupRouter() *gin.Engine {
 		MaxAge:           12 * time.Hour,
 	}))
 
-	router := r.Group("/api")
+	router := r.Group("/auth")
 	router.POST("/register", server.Register)
 	router.POST("/login", server.Login)
-	router.GET("/profile/:userId", server.GetStrangerProfileInfo)
 
-	auth := r.Group("/auth")
+	openapi := r.Group("/openapi")
+	openapi.GET("/profile/:userId", server.GetStrangerProfileInfo)
+
+	auth := r.Group("/user")
 	auth.Use(middleware.JWTMiddleware())
 	auth.GET("/profile", server.GetProfileInfo)
-	auth.POST("/send-friend-request", server.SendFriendRequest)
-	auth.PATCH("/accept-friend-request", server.AcceptFriendRequest)
-	auth.DELETE("/decline-friend-request", server.DeclineFriendRequest)
-	auth.GET("/get-friends", server.GetFriendList)
-	auth.GET("/get-pending-friend-invies", server.GetPendingFriendInvies)
+
+	friends := r.Group("/friends")
+	friends.Use(middleware.JWTMiddleware())
+	friends.POST("/send-friend-request", server.SendFriendRequest)
+	friends.PATCH("/accept-friend-request", server.AcceptFriendRequest)
+	friends.DELETE("/decline-friend-request", server.DeclineFriendRequest)
+	friends.GET("/get-friends", server.GetFriendList)
+	friends.GET("/get-pending-friend-invies", server.GetPendingFriendInvies)
 
 	return r
 
