@@ -53,7 +53,7 @@ func SetupRouter() *gin.Engine {
 	friends.PATCH("/accept-friend-request", server.AcceptFriendRequest)
 	friends.DELETE("/decline-friend-request", server.DeclineFriendRequest)
 	friends.GET("/get-friends", server.GetFriendList)
-	friends.GET("/get-pending-friend-invies", server.GetPendingFriendInvies)
+	friends.GET("/get-pending-friend-requests", server.GetPendingFriendInvies)
 
 	return r
 

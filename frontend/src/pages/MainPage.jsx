@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Routes, Route, Link } from 'react-router-dom';
 import './MainPage.css';
-import Profile from "./components/Profile"
-import Feed from './components/Feed';
-import Messages from './components/Messages';
-import Friends from './components/Friends';
-import Communities from './components/Communities';
+import Profile from "../components/Profile"
+import Feed from '../components/Feed';
+import Messages from '../components/Messages';
+import Friends from '../components/Friends';
+import Communities from '../components/Communities';
 
 const MainPage = () => {
   const [activeItem, setActiveItem] = useState('feed');
