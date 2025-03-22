@@ -46,6 +46,8 @@ func SetupRouter() *gin.Engine {
 	auth.POST("/send-friend-request", server.SendFriendRequest)
 	auth.PATCH("/accept-friend-request", server.AcceptFriendRequest)
 	auth.DELETE("/decline-friend-request", server.DeclineFriendRequest)
+	auth.GET("/get-friends", server.GetFriendList)
+	auth.GET("/get-pending-friend-invies", server.GetPendingFriendInvies)
 
 	return r
 
