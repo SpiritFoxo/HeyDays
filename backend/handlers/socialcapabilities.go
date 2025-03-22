@@ -118,7 +118,6 @@ func (s *Server) AcceptFriendRequest(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "succes"})
 }
 
-// unfinished
 func (s *Server) DeclineFriendRequest(c *gin.Context) {
 
 	userId, exists := c.Get("user_id")
