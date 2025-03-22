@@ -76,7 +76,6 @@ func (s *Server) SendFriendRequest(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
 	newFriendship := models.Friendship{UserID: userId.(uint), FriendID: req.FriendId, Status: "pending"}
 	if err := s.db.Create(&newFriendship).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot send friend request"})
