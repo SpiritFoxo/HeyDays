@@ -16,14 +16,14 @@ const Profile = () => {
         let response;
         
         if (userId) {
-          response = await fetch(`http://localhost:8080/api/profile/${userId}`, {
+          response = await fetch(`http://localhost:8080/openapi/profile/${userId}`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
             }
           });
         } else {
-          response = await fetch('http://localhost:8080/auth/profile', {
+          response = await fetch('http://localhost:8080/user/profile', {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
