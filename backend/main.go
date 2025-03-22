@@ -43,6 +43,7 @@ func SetupRouter() *gin.Engine {
 	auth := r.Group("/auth")
 	auth.Use(middleware.JWTMiddleware())
 	auth.GET("/profile", server.GetProfileInfo)
+	auth.POST("/send-friend-request", server.SendFriendRequest)
 
 	return r
 
