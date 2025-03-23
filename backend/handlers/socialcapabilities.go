@@ -11,52 +11,60 @@ func (s *Server) GetFriendList(c *gin.Context) {
 	userId, exists := c.Get("user_id")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "cannot get user_id"})
-		c.Abort()
 		return
 	}
 
-	var friends []models.Friendship
-	if err := s.db.Where("(user_id = ? OR friend_id = ?) AND status = 'accepted'", userId, userId).Find(&friends).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "no friends for you"})
+	var friends []models.User
+	if err := s.db.Joins(
+		"JOIN friendships ON (friendships.user_id = users.id AND friendships.friend_id = ?) OR (friendships.friend_id = users.id AND friendships.user_id = ?)",
+		userId, userId).
+		Where("friendships.status = ?", "accepted").
+		Find(&friends).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get friends"})
 		return
 	}
 
-	friendsIds := make([]uint, 0)
-	for _, friend := range friends {
-		if friend.UserID == userId {
-			friendsIds = append(friendsIds, friend.FriendID)
-		} else {
-			friendsIds = append(friendsIds, friend.UserID)
+	friendList := make([]gin.H, len(friends))
+	for i, friend := range friends {
+		friendList[i] = gin.H{
+			"id":            friend.ID,
+			"name":          friend.Name,
+			"surname":       friend.Surname,
+			"profile_photo": friend.ProfilePhoto,
 		}
 	}
 
-	c.JSON(http.StatusOK, gin.H{"friends": friendsIds})
+	c.JSON(http.StatusOK, gin.H{"friends": friendList})
 }
 
 func (s *Server) GetPendingFriendInvies(c *gin.Context) {
 	userId, exists := c.Get("user_id")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "cannot get user_id"})
-		c.Abort()
 		return
 	}
 
-	var friends []models.Friendship
-	if err := s.db.Where("(user_id = ? OR friend_id = ?) AND status = ?", userId, userId, "pending").Find(&friends).Error; err != nil {
+	var friends []models.User
+	if err := s.db.Joins(
+		"JOIN friendships ON (friendships.user_id = users.id AND friendships.friend_id = ?) OR (friendships.friend_id = users.id AND friendships.user_id = ?)",
+		userId, userId).
+		Where("friendships.status = ?", "pending").
+		Find(&friends).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "no friends for you"})
 		return
 	}
 
-	friendsIds := make([]uint, 0)
-	for _, friend := range friends {
-		if friend.UserID == userId {
-			friendsIds = append(friendsIds, friend.FriendID)
-		} else {
-			friendsIds = append(friendsIds, friend.UserID)
+	friendList := make([]gin.H, len(friends))
+	for i, friend := range friends {
+		friendList[i] = gin.H{
+			"id":            friend.ID,
+			"name":          friend.Name,
+			"surname":       friend.Surname,
+			"profile_photo": friend.ProfilePhoto,
 		}
 	}
 
-	c.JSON(http.StatusOK, gin.H{"friends": friendsIds})
+	c.JSON(http.StatusOK, gin.H{"friends": friendList})
 }
 
 func (s *Server) SendFriendRequest(c *gin.Context) {
@@ -104,14 +112,10 @@ func (s *Server) AcceptFriendRequest(c *gin.Context) {
 		return
 	}
 
-	var newFriendship models.Friendship
-	if err := s.db.Where("user_id = ? AND friend_id = ? AND Status = ?", req.FriendId, userId, "pending").First(&newFriendship).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "friend request not found"})
-		return
-	}
-	newFriendship.Status = "accepted"
-	if err := s.db.Save(&newFriendship).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update status"})
+	if err := s.db.Model(&models.Friendship{}).
+		Where("user_id = ? AND friend_id = ? AND status = ?", req.FriendId, userId, "pending").
+		Update("status", "accepted").Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "friend request not found or cannot be accepted"})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "succes"})

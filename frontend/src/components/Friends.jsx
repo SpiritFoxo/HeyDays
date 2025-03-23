@@ -18,14 +18,15 @@ const Friends = () => {
 
   const handleAccept = (friendId) => {
     acceptFriendRequest(friendId, token).then(() => {
-      setRequests((prev) => prev.filter((id) => id !== friendId));
-      setFriends((prev) => [...prev, friendId]);
+      setRequests((prev) => prev.filter((friend) => friend.id !== friendId));
+      const acceptedFriend = requests.find(friend => friend.id === friendId);
+      setFriends((prev) => [...prev, acceptedFriend]);
     });
   };
 
   const handleDecline = (friendId) => {
     declineFriendRequest(friendId, token).then(() => {
-      setRequests((prev) => prev.filter((id) => id !== friendId));
+      setRequests((prev) => prev.filter((friend) => friend.id !== friendId));
     });
   };
 
@@ -44,10 +45,14 @@ const Friends = () => {
         {activeTab === 'friends' && (
           <div className="friends-list">
             {friends.length > 0 ? (
-              friends.map((friendId) => (
-                <div className="friend-item" key={friendId}>
-                  <div className="profile-image"><div className="avatar"></div></div>
-                  <div className="friend-name">User ID: {friendId}</div>
+              friends.map(({ id, name, surname, profile_photo }) => (
+                <div className="friend-item" key={id}>
+                  <div className="profile-image">
+                    <img className="avatar" src={profile_photo || "/pfp.png"} alt={name} />
+                  </div>
+                  <div className="friend-info">
+                    <span className="friend-name">{name} {surname}</span>
+                  </div>
                 </div>
               ))
             ) : <p>У вас пока нет друзей</p>}
@@ -57,12 +62,16 @@ const Friends = () => {
         {activeTab === 'requests' && (
           <div className="requests-list">
             {requests.length > 0 ? (
-              requests.map((friendId) => (
-                <div className="friend-item" key={friendId}>
-                  <div className="profile-image"><div className="avatar"></div></div>
-                  <div className="friend-name">User ID: {friendId}</div>
-                  <button onClick={() => handleAccept(friendId)}>Принять</button>
-                  <button onClick={() => handleDecline(friendId)}>Отклонить</button>
+              requests.map(({ id, name, surname, profile_photo }) => (
+                <div className="friend-item" key={id}>
+                  <div className="profile-image">
+                    <img className="avatar" src={profile_photo || "/default-avatar.png"} alt={name} />
+                  </div>
+                  <div className="friend-info">
+                    <span className="friend-name">{name} {surname}</span>
+                  </div>
+                  <button onClick={() => handleAccept(id)}>Принять</button>
+                  <button onClick={() => handleDecline(id)}>Отклонить</button>
                 </div>
               ))
             ) : <p>Нет входящих заявок</p>}
