@@ -65,7 +65,7 @@ const Friends = () => {
               requests.map(({ id, name, surname, profile_photo }) => (
                 <div className="friend-item" key={id}>
                   <div className="profile-image">
-                    <img className="avatar" src={profile_photo || "/default-avatar.png"} alt={name} />
+                    <img className="avatar" src={profile_photo || "/pfp.png"} alt={name} />
                   </div>
                   <div className="friend-info">
                     <span className="friend-name">{name} {surname}</span>
