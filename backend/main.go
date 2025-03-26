@@ -1,6 +1,7 @@
 package main
 
 import (
+	"heydays/config"
 	"heydays/handlers"
 	"heydays/middleware"
 	"heydays/models"
@@ -24,6 +25,17 @@ func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
 	db := DbInit()
+
+	redisClient := config.SetupRedis()
+
+	rabbitConn, err := config.SetupRabbitMQ()
+	if err != nil {
+		log.Fatalf("RabbitMQ setup failed: %v", err)
+	}
+	defer rabbitConn.Close()
+
+	// Create chat server
+	chatServer := handlers.NewChatServer(db, redisClient, rabbitConn)
 
 	server := handlers.NewServer(db)
 
@@ -54,6 +66,15 @@ func SetupRouter() *gin.Engine {
 	friends.DELETE("/decline-friend-request", server.DeclineFriendRequest)
 	friends.GET("/get-friends", server.GetFriendList)
 	friends.GET("/get-pending-friend-requests", server.GetPendingFriendInvies)
+
+	chat := r.Group("/chat")
+	chat.Use(middleware.JWTMiddleware())
+	{
+		chat.POST("/send", chatServer.SendMessage)
+		chat.GET("/:chatId/messages", chatServer.GetChatMessages)
+	}
+
+	go chatServer.ArchiveOldMessages()
 
 	return r
 

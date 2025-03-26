@@ -9,9 +9,11 @@ services:
     depends_on:
       - postgres
       - redis
+      - rabbitmq
     environment:
       - DATABASE_URL=postgres://postgres:password@postgres:5432/socialnet?sslmode=disable
       - REDIS_URL=redis:6379
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
 
   frontend:
     build: ./frontend
@@ -40,6 +42,17 @@ services:
     restart: always
     ports:
       - "6379:6379"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
 
 volumes:
   postgres_data:

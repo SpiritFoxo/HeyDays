@@ -8,10 +8,9 @@ import (
 
 type Chat struct {
 	gorm.Model
-	Name        string // Empty for direct chats
-	Description string // Empty for direct chats
-	IsGroup     bool   `gorm:"not null;default:false"`
-	OwnerID     uint   `gorm:"index"`
+	Name    string // Empty for direct chats
+	IsGroup bool   `gorm:"not null;default:false"`
+	OwnerID uint   `gorm:"index"`
 
 	Messages []Message  `gorm:"foreignKey:ChatID"`
 	Users    []ChatUser `gorm:"foreignKey:ChatID"`
@@ -34,6 +33,15 @@ type Message struct {
 	ReadAt   *time.Time
 
 	Attachments []MessageAttachment `gorm:"foreignKey:MessageID"`
+}
+
+type ArchivedMessage struct {
+	gorm.Model
+	OriginalMessageID uint
+	ChatID            uint
+	SenderID          uint
+	Content           string
+	ArchivedAt        time.Time
 }
 
 type MessageAttachment struct {
