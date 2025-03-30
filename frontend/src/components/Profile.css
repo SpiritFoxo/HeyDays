@@ -1,11 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Onest:wght@100..900&family=Roboto+Flex:opsz,wght@8..144,100..1000&display=swap');
 
-.content-area{
-    display: flex;
-    width: 75rem;
-    padding-left: 4rem;
-    background: none;
-}
 
 .profile-container{
     display: flex;

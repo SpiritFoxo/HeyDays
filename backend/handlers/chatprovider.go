@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"heydays/models"
+	"heydays/ws"
 	"net/http"
 	"strconv"
 	"time"
@@ -26,6 +27,15 @@ func NewChatServer(db *gorm.DB, redisClient *redis.Client, rabbitManager *Rabbit
 		redisClient:   redisClient,
 		rabbitManager: rabbitManager,
 	}
+}
+
+func NotifyClients(message models.Message) {
+	jsonMessage, err := json.Marshal(message)
+	if err != nil {
+		fmt.Println("Ошибка сериализации:", err)
+		return
+	}
+	ws.Broadcast <- jsonMessage
 }
 
 func (s *ChatServer) SendMessage(c *gin.Context) {
@@ -96,6 +106,8 @@ func (s *ChatServer) SendMessage(c *gin.Context) {
 		"message": "Message sent successfully",
 		"data":    message,
 	})
+	NotifyClients(message)
+
 }
 
 func (s *ChatServer) GetChatMessages(c *gin.Context) {

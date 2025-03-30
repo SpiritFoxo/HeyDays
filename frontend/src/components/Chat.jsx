@@ -13,29 +13,22 @@ const Chat = () => {
   const messagesEndRef = useRef(null);
   const token = localStorage.getItem("token");
   const currentUserId = parseInt(localStorage.getItem("userId"), 10);
-  console.log(currentUserId);
+  const wsUrl = `ws://localhost:8080/ws?token=${token}`;
 
   useEffect(() => {
     const fetchChatInfo = async () => {
       try {
         const response = await fetch(`http://localhost:8080/chat/${chatId}`, {
           method: "GET",
-          headers: { 
-            Authorization: `Bearer ${token}` 
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
-        
-        if (!response.ok) {
-          throw new Error("Failed to fetch chat information");
-        }
-        
+        if (!response.ok) throw new Error("Failed to fetch chat information");
         const data = await response.json();
         setChatInfo(data);
       } catch (err) {
         setError(err.message);
       }
     };
-
     fetchChatInfo();
   }, [chatId, token]);
 
@@ -44,26 +37,35 @@ const Chat = () => {
       try {
         const response = await fetch(`http://localhost:8080/chat/${chatId}/messages`, {
           method: "GET",
-          headers: { 
-            Authorization: `Bearer ${token}` 
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
-        
-        if (!response.ok) {
-          throw new Error("Failed to fetch messages");
-        }
-        
+        if (!response.ok) throw new Error("Failed to fetch messages");
         const data = await response.json();
-        setMessages(data.messages || []); 
+        setMessages((data.messages || []).reverse());
         setLoading(false);
       } catch (err) {
         setError(err.message);
         setLoading(false);
       }
     };
-
     fetchMessages();
-  }, [chatId]);
+  }, [chatId, token]);
+
+  useEffect(() => {
+    const ws = new WebSocket(wsUrl);
+    ws.onmessage = (event) => {
+      try {
+        const newMessage = JSON.parse(event.data);
+        if (newMessage.ChatID === parseInt(chatId)) {
+          setMessages((prevMessages) => [...prevMessages, newMessage]);
+        }
+      } catch (err) {
+        console.error("WebSocket message error:", err);
+      }
+    };
+    ws.onclose = () => console.log("WebSocket closed");
+    return () => ws.close();
+  }, [chatId, wsUrl]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -71,54 +73,21 @@ const Chat = () => {
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    
     if (!messageText.trim()) return;
-    
     try {
       const response = await fetch(`http://localhost:8080/chat/send`, {
         method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}` 
-        },
-        body: JSON.stringify({
-          chat_id: parseInt(chatId),
-          content: messageText
-        }),
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ chat_id: parseInt(chatId), content: messageText }),
       });
-      
-      if (!response.ok) {
-        throw new Error("Failed to send message");
-      }
-      
-      const newMessage = {
-        ID: Date.now(),
-        Content: messageText,
-        SenderID: 1,
-        CreatedAt: new Date().toISOString(),
-      };
-      
-      setMessages([...messages, newMessage]);
+      if (!response.ok) throw new Error("Failed to send message");
       setMessageText('');
-      
-      const updatedResponse = await fetch(`http://localhost:8080/chat/${chatId}/messages`, {
-        method: "GET",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      
-      if (updatedResponse.ok) {
-        const data = await updatedResponse.json();
-        setMessages(data.messages || []);
-      }
     } catch (err) {
       setError(err.message);
     }
   };
 
-  const handleBackClick = () => {
-    navigate('/chats');
-  };
-  
+  const handleBackClick = () => navigate('/chats');
 
   if (loading) return <div className="loading">Загрузка сообщений...</div>;
   if (error) return <div className="error">Ошибка: {error}</div>;
@@ -126,34 +95,26 @@ const Chat = () => {
   return (
     <div className="chat-room-container">
       <div className="chat-header">
-        <button className="back-button" onClick={handleBackClick}>
-          ←
-        </button>
+        <button className="back-button" onClick={handleBackClick}>←</button>
         <div className="chat-info">
           <div className="chat-title">{chatInfo?.title || "Чат"}</div>
-          <div className="chat-participants">{chatInfo?.participants_count || 0} участников</div>
+          <div className="chat-participants">{chatInfo?.participants.length || 0} участников</div>
         </div>
       </div>
-      
       <div className="messages-container">
         {messages.length > 0 ? (
-        <div className="messages-list">
-        {messages.map((message) => (
-          <div 
-            key={message.ID} 
-            className={`message ${message.SenderID === currentUserId ? 'sent' : 'received'}`}
-          >
-            <div className="message-content">
-              {message.Content}
-            </div>
+          <div className="messages-list">
+            {messages.map((message) => (
+              <div key={message.ID} className={`message ${message.SenderID === currentUserId ? 'sent' : 'received'}`}>
+                <div className="message-content">{message.Content}</div>
+              </div>
+            ))}
+            <div ref={messagesEndRef} />
           </div>
-        ))}
+        ) : (
+          <p>No messages</p>
+        )}
       </div>
-  ) : (
-    <p>No messages</p>
-  )}
-</div>
-      
       <form className="message-form" onSubmit={handleSendMessage}>
         <input
           type="text"
@@ -162,9 +123,7 @@ const Chat = () => {
           placeholder="Введите сообщение..."
           className="message-input"
         />
-        <button type="submit" className="send-button">
-          Отправить
-        </button>
+        <button type="submit" className="send-button">Отправить</button>
       </form>
     </div>
   );

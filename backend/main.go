@@ -5,6 +5,7 @@ import (
 	"heydays/handlers"
 	"heydays/middleware"
 	"heydays/models"
+	"heydays/ws"
 	"log"
 	"time"
 
@@ -75,6 +76,9 @@ func SetupRouter() *gin.Engine {
 	chat.POST("/direct", chatServer.CreateDirectChat)
 	chat.POST("/group", chatServer.CreateGroupChat)
 	chat.GET("/:chatId", chatServer.GetChatInfo)
+
+	r.GET("/ws", ws.HandleConnections)
+	go ws.BroadcastMessages()
 
 	go chatServer.ArchiveOldMessages()
 
