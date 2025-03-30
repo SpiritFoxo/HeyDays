@@ -34,7 +34,6 @@ func SetupRouter() *gin.Engine {
 	}
 	defer rabbitConn.Close()
 
-	// Create chat server
 	chatServer := handlers.NewChatServer(db, redisClient, rabbitConn)
 
 	server := handlers.NewServer(db)
@@ -69,10 +68,12 @@ func SetupRouter() *gin.Engine {
 
 	chat := r.Group("/chat")
 	chat.Use(middleware.JWTMiddleware())
-	{
-		chat.POST("/send", chatServer.SendMessage)
-		chat.GET("/:chatId/messages", chatServer.GetChatMessages)
-	}
+	chat.POST("/send", chatServer.SendMessage)
+	chat.GET("/:chatId/messages", chatServer.GetChatMessages)
+	chat.GET("/list", chatServer.GetUserChats)
+	chat.POST("/direct", chatServer.CreateDirectChat)
+	chat.POST("/group", chatServer.CreateGroupChat)
+	chat.GET("/:chatId", chatServer.GetChatInfo)
 
 	go chatServer.ArchiveOldMessages()
 

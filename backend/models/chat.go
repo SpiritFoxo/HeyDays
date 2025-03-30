@@ -22,6 +22,8 @@ type ChatUser struct {
 	UserID   uint      `gorm:"uniqueIndex:idx_chat_user"`
 	JoinedAt time.Time `gorm:"default:CURRENT_TIMESTAMP"`
 	IsAdmin  bool      `gorm:"default:false"`
+
+	Chat Chat `gorm:"foreignKey:ChatID"`
 }
 
 type Message struct {
