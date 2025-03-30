@@ -45,29 +45,28 @@ func (s *Server) Register(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"message": "User created"})
 }
 
-func (s *Server) LoginCheck(email, password string) (string, error) {
+func (s *Server) LoginCheck(email, password string) (string, *models.User, error) {
 	var err error
 
 	user := models.User{}
 
 	if err = s.db.Model(models.User{}).Where("email=?", email).Take(&user).Error; err != nil {
-		return "", err
+		return "", nil, err
 	}
 
 	err = user.VerifyPassword(password)
 
 	if err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
-		return "", err
+		return "", nil, err
 	}
 
 	token, err := utils.GenerateToken(user)
 
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 
-	return token, nil
-
+	return token, &user, nil
 }
 
 func (s *Server) Login(c *gin.Context) {
@@ -84,14 +83,12 @@ func (s *Server) Login(c *gin.Context) {
 		return
 	}
 
-	user := models.User{Email: input.Email, Password: input.Password}
-
-	token, err := s.LoginCheck(user.Email, user.Password)
+	token, user, err := s.LoginCheck(input.Email, input.Password)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "The email or password is not correct"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"token": token})
+	c.JSON(http.StatusOK, gin.H{"token": token, "user_id": user.ID})
 }

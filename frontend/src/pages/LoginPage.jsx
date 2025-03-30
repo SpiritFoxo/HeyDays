@@ -57,6 +57,7 @@ const LoginForm = () => {
           const data = await response.json();
 
           localStorage.setItem('token', data.token);
+          localStorage.setItem('userId', data.user_id)
 
           window.location.href = '/';
         } catch (error) {

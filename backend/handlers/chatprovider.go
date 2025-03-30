@@ -15,48 +15,16 @@ import (
 )
 
 type ChatServer struct {
-	db          *gorm.DB
-	redisClient *redis.Client
-	rabbitConn  *amqp.Connection
-	rabbitChan  *amqp.Channel
+	db            *gorm.DB
+	redisClient   *redis.Client
+	rabbitManager *RabbitMQManager
 }
 
-func NewChatServer(db *gorm.DB, redisClient *redis.Client, rabbitConn *amqp.Connection) *ChatServer {
-	ch, err := rabbitConn.Channel()
-	if err != nil {
-		panic(fmt.Sprintf("Failed to open a channel: %v", err))
-	}
-
-	err = ch.ExchangeDeclare(
-		"chat_messages", // name
-		"direct",        // type
-		true,            // durable
-		false,           // auto-deleted
-		false,           // internal
-		false,           // no-wait
-		nil,             // arguments
-	)
-	if err != nil {
-		panic(fmt.Sprintf("Failed to declare exchange: %v", err))
-	}
-
-	_, err = ch.QueueDeclare(
-		"chat_messages_queue", // name
-		true,                  // durable
-		false,                 // delete when unused
-		false,                 // exclusive
-		false,                 // no-wait
-		nil,                   // arguments
-	)
-	if err != nil {
-		panic(fmt.Sprintf("Failed to declare queue: %v", err))
-	}
-
+func NewChatServer(db *gorm.DB, redisClient *redis.Client, rabbitManager *RabbitMQManager) *ChatServer {
 	return &ChatServer{
-		db:          db,
-		redisClient: redisClient,
-		rabbitConn:  rabbitConn,
-		rabbitChan:  ch,
+		db:            db,
+		redisClient:   redisClient,
+		rabbitManager: rabbitManager,
 	}
 }
 
@@ -97,19 +65,20 @@ func (s *ChatServer) SendMessage(c *gin.Context) {
 	}
 
 	messageBody, _ := json.Marshal(message)
-	err := s.rabbitChan.Publish(
-		"chat_messages",
-		"chat_messages_queue",
-		false,
-		false,
+
+	err := s.rabbitManager.PublishMessage(
+		"chat_messages",       // exchange
+		"chat_messages_queue", // routing key
+		false,                 // mandatory
+		false,                 // immediate
 		amqp.Publishing{
 			ContentType: "application/json",
 			Body:        messageBody,
 		},
 	)
+
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to queue message"})
-		return
+		fmt.Printf("Warning: Failed to queue message in RabbitMQ: %v\n", err)
 	}
 
 	redisKey := fmt.Sprintf("chat:%d:messages", input.ChatID)

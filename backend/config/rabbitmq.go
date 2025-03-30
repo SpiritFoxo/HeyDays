@@ -2,12 +2,11 @@ package config
 
 import (
 	"fmt"
+	"heydays/handlers"
 	"os"
-
-	"github.com/streadway/amqp"
 )
 
-func SetupRabbitMQ() (*amqp.Connection, error) {
+func SetupRabbitMQManager() *handlers.RabbitMQManager {
 	amqpURI := fmt.Sprintf(
 		"amqp://%s:%s@%s:%s/",
 		os.Getenv("RABBITMQ_USER"),
@@ -16,10 +15,5 @@ func SetupRabbitMQ() (*amqp.Connection, error) {
 		os.Getenv("RABBITMQ_PORT"),
 	)
 
-	conn, err := amqp.Dial(amqpURI)
-	if err != nil {
-		return nil, fmt.Errorf("failed to connect to RabbitMQ: %v", err)
-	}
-
-	return conn, nil
+	return handlers.NewRabbitMQManager(amqpURI)
 }

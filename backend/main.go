@@ -28,13 +28,14 @@ func SetupRouter() *gin.Engine {
 
 	redisClient := config.SetupRedis()
 
-	rabbitConn, err := config.SetupRabbitMQ()
-	if err != nil {
-		log.Fatalf("RabbitMQ setup failed: %v", err)
-	}
-	defer rabbitConn.Close()
+	rabbitManager := config.SetupRabbitMQManager()
 
-	chatServer := handlers.NewChatServer(db, redisClient, rabbitConn)
+	err := rabbitManager.Connect()
+	if err != nil {
+		log.Printf("Warning: Initial RabbitMQ connection failed: %v", err)
+	}
+
+	chatServer := handlers.NewChatServer(db, redisClient, rabbitManager)
 
 	server := handlers.NewServer(db)
 
