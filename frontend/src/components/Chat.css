@@ -76,6 +76,8 @@
   
   .message-content {
     margin-bottom: 4px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
   
   .message-time {

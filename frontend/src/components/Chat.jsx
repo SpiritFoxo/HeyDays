@@ -87,7 +87,7 @@ const Chat = () => {
     }
   };
 
-  const handleBackClick = () => navigate('/chats');
+  const handleBackClick = () => navigate('/messages');
 
   if (loading) return <div className="loading">Загрузка сообщений...</div>;
   if (error) return <div className="error">Ошибка: {error}</div>;

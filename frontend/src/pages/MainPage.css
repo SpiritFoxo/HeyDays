@@ -43,6 +43,9 @@
     font-weight: bold;
   }
   
+  .icon{
+    width: 24px;
+  }
   .sidebar {
     grid-area: sidebar;
     background-color: #f0f0f0;
