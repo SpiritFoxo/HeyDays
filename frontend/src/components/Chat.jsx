@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { fetchChatInfo, fetchMessages, sendMessage } from '../api/chats';
 import './Chat.css';
 
 const Chat = () => {
@@ -16,39 +17,31 @@ const Chat = () => {
   const wsUrl = `ws://localhost:8080/ws?token=${token}`;
 
   useEffect(() => {
-    const fetchChatInfo = async () => {
+    const loadChatData = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/chat/${chatId}`, {
-          method: "GET",
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!response.ok) throw new Error("Failed to fetch chat information");
-        const data = await response.json();
-        setChatInfo(data);
+        const chatData = await fetchChatInfo(chatId, token);
+        setChatInfo(chatData);
       } catch (err) {
         setError(err.message);
       }
     };
-    fetchChatInfo();
+
+    loadChatData();
   }, [chatId, token]);
 
   useEffect(() => {
-    const fetchMessages = async () => {
+    const loadMessages = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/chat/${chatId}/messages`, {
-          method: "GET",
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!response.ok) throw new Error("Failed to fetch messages");
-        const data = await response.json();
-        setMessages((data.messages || []).reverse());
+        const messagesData = await fetchMessages(chatId, token);
+        setMessages(messagesData);
         setLoading(false);
       } catch (err) {
         setError(err.message);
         setLoading(false);
       }
     };
-    fetchMessages();
+
+    loadMessages();
   }, [chatId, token]);
 
   useEffect(() => {
@@ -63,6 +56,7 @@ const Chat = () => {
         console.error("WebSocket message error:", err);
       }
     };
+
     ws.onclose = () => console.log("WebSocket closed");
     return () => ws.close();
   }, [chatId, wsUrl]);
@@ -74,19 +68,15 @@ const Chat = () => {
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!messageText.trim()) return;
+
     try {
-      const response = await fetch(`http://localhost:8080/chat/send`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ chat_id: parseInt(chatId), content: messageText }),
-      });
-      if (!response.ok) throw new Error("Failed to send message");
+      await sendMessage(chatId, messageText, token);
       setMessageText('');
     } catch (err) {
       setError(err.message);
     }
   };
-
+  
   const handleBackClick = () => navigate('/messages');
 
   if (loading) return <div className="loading">Загрузка сообщений...</div>;

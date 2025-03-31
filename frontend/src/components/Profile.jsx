@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { fetchProfileData, fetchCurrentUser } from '../api/profile';
 import { sendFriendRequest } from '../api/friends';
 import './Profile.css';
 
@@ -11,68 +12,38 @@ const Profile = () => {
   const [requestSent, setRequestSent] = useState(false);
   const [requestLoading, setRequestLoading] = useState(false);
   const { userId } = useParams();
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
-    const fetchProfileData = async () => {
+    const loadProfile = async () => {
       try {
         setLoading(true);
-        let response;
-       
+        const profile = await fetchProfileData(userId, token);
+        setProfileData(profile);
+
         if (userId) {
-          response = await fetch(`http://localhost:8080/openapi/profile/${userId}`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            }
-          });
-          const currentUserResponse = await fetch('http://localhost:8080/user/profile', {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
-          });
-          
-          if (currentUserResponse.ok) {
-            const currentUserData = await currentUserResponse.json();
-            setIsOwnProfile(currentUserData.id === userId);
-          }
+          const currentUser = await fetchCurrentUser(token);
+          setIsOwnProfile(currentUser.id === Number(userId));
         } else {
-          response = await fetch('http://localhost:8080/user/profile', {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
-          });
           setIsOwnProfile(true);
         }
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch profile data');
-        }
-        const data = await response.json();
-        setProfileData(data);
       } catch (err) {
         setError(err.message);
       } finally {
         setLoading(false);
       }
     };
-    fetchProfileData();
-  }, [userId]);
 
-  const handleEditProfile = () => {
-  };
+    loadProfile();
+  }, [userId, token]);
 
   const handleSendFriendRequest = async () => {
     if (!userId || requestSent || requestLoading) return;
-    
+
     try {
       setRequestLoading(true);
-      const token = localStorage.getItem('token');
       const response = await sendFriendRequest(Number(userId), token);
-      
+
       if (response.success) {
         setRequestSent(true);
       } else {
@@ -89,19 +60,19 @@ const Profile = () => {
   if (error) return <div>Error: {error}</div>;
   if (!profileData) return <div>No profile data found</div>;
 
-  const profilePhoto = profileData?.profile_photo || '/pfp.png';
-  const name = profileData?.name || '';
-  const surname = profileData?.surname || '';
+  const profilePhoto = profileData?.profile_photo || "/pfp.png";
+  const name = profileData?.name || "";
+  const surname = profileData?.surname || "";
 
   return (
     <div className="profile-container">
       <div className="parent">
         <div className='profile-banner'>
-          <img src='/banner.png' alt="Profile banner"></img>
+          <img src='/banner.png' alt="Profile banner" />
         </div>
         <div className="main-info">
           <div className='main-info-container'>
-            <img src={profilePhoto} alt="Profile"></img>
+            <img src={profilePhoto} alt="Profile" />
             <p>{name} {surname}</p>
           </div>
         </div>
@@ -109,13 +80,11 @@ const Profile = () => {
           <div className='menu-container'>
             <div className='social-buttons'>
               {isOwnProfile ? (
-                <button className='social-button' onClick={handleEditProfile}>
-                  Редактировать профиль
-                </button>
+                <button className='social-button'>Редактировать профиль</button>
               ) : (
                 <>
-                  <button 
-                    className='social-button' 
+                  <button
+                    className='social-button'
                     onClick={handleSendFriendRequest}
                     disabled={requestSent || requestLoading}
                   >
@@ -130,8 +99,7 @@ const Profile = () => {
           </div>
         </div>
         <div className="user-posts">
-          <div className='posts-container'>
-          </div>
+          <div className='posts-container'></div>
         </div>
       </div>
     </div>

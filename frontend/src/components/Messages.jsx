@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './Messages.css';
+import { fetchChats } from '../api/chats';
 
 const Messages = () => {
   const [chats, setChats] = useState([]);
@@ -10,35 +11,20 @@ const Messages = () => {
   const wsUrl = `ws://localhost:8080/ws?token=${token}`;
 
   useEffect(() => {
-    const fetchChats = async () => {
+    const loadChats = async () => {
       try {
-        const response = await fetch("http://localhost:8080/chat/list", {
-          method: "GET",
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch chats");
-        }
-
-        const data = await response.json();
-        setChats(data.chats || []);
-        setLoading(false);
+        const chatsData = await fetchChats(token);
+        setChats(chatsData);
       } catch (err) {
         setError(err.message);
+      } finally {
         setLoading(false);
       }
     };
 
-    fetchChats();
+    loadChats();
     const ws = new WebSocket(wsUrl);
-
-    ws.onopen = () => {
-      console.log("WebSocket подключен");
-    };
-
     ws.onmessage = (event) => {
-      console.log("Новое сообщение в WebSocket:", event.data);
       try {
         const newMessage = JSON.parse(event.data);
     
@@ -59,14 +45,6 @@ const Messages = () => {
       } catch (err) {
         console.error("Ошибка при обработке WebSocket-сообщения:", err);
       }
-    };
-
-    ws.onerror = (err) => {
-      console.error("Ошибка WebSocket:", err);
-    };
-
-    ws.onclose = () => {
-      console.log("WebSocket соединение закрыто");
     };
 
     return () => {
