@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchChatInfo, fetchMessages, sendMessage } from '../api/chats';
-import './Chat.css';
+import '../css/Chat.css';
 
 const Chat = () => {
   const { chatId } = useParams();
@@ -56,8 +56,6 @@ const Chat = () => {
         console.error("WebSocket message error:", err);
       }
     };
-
-    ws.onclose = () => console.log("WebSocket closed");
     return () => ws.close();
   }, [chatId, wsUrl]);
 

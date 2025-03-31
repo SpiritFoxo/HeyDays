@@ -1,6 +1,7 @@
 .friends-container {
     font-family: Arial, sans-serif;
-    max-width: 600px;
+    max-width: 75vw;
+    background-color: white;
   }
   
 .navigation-tabs {

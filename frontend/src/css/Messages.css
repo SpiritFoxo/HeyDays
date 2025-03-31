@@ -1,7 +1,9 @@
 .chat-list-container {
-    max-width: 800px;
+    max-width: 85vw;
     margin: 0 auto;
     padding: 16px;
+    background-color: white;
+    height: 93vh;
   }
   
   .chat-list-container h2 {

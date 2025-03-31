@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"heydays/models"
 	"net/http"
 
@@ -31,24 +32,41 @@ func (s *Server) GetProfileInfo(c *gin.Context) {
 }
 
 func (s *Server) GetStrangerProfileInfo(c *gin.Context) {
-	userId := c.Param("userId")
-
-	user := models.User{}
-	result := s.db.First(&user, userId)
-	if result.Error != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "cannot find user"})
+	authUserID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "cannot get user_id"})
 		c.Abort()
 		return
 	}
 
+	strangerID := c.Param("userId")
+
+	if fmt.Sprintf("%v", authUserID) == strangerID {
+		s.GetProfileInfo(c)
+		return
+	}
+
+	var user models.User
+	if err := s.db.First(&user, strangerID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "cannot find user"})
+		return
+	}
+
+	var friendship models.Friendship
+	err := s.db.Where("(user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)", authUserID, strangerID, strangerID, authUserID).First(&friendship).Error
+
+	friendstatus := "none"
+	if err == nil {
+		friendstatus = friendship.Status
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"name":          user.Name,
-		"surname":       user.Surname,
-		"profile_photo": user.ProfilePhoto,
+		"name":              user.Name,
+		"surname":           user.Surname,
+		"profile_photo":     user.ProfilePhoto,
+		"friendship_status": friendstatus,
 	})
 }
-
-//update profile
 
 func (s *Server) UpdateProfileInfo(c *gin.Context) {
 	userId, exists := c.Get("user_id")

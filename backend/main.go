@@ -52,12 +52,13 @@ func SetupRouter() *gin.Engine {
 	router.POST("/register", server.Register)
 	router.POST("/login", server.Login)
 
-	openapi := r.Group("/openapi")
-	openapi.GET("/profile/:userId", server.GetStrangerProfileInfo)
+	//openapi := r.Group("/openapi")
+	//openapi.GET("/profile/:userId", server.GetStrangerProfileInfo)
 
 	user := r.Group("/user")
 	user.Use(middleware.JWTMiddleware())
 	user.GET("/profile", server.GetProfileInfo)
+	user.GET("/profile/:userId", server.GetStrangerProfileInfo)
 	user.POST("/update-profile", server.UpdateProfileInfo)
 
 	friends := r.Group("/friends")

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import './Messages.css';
+import '../css/Messages.css';
 import { fetchChats } from '../api/chats';
 
 const Messages = () => {
@@ -65,7 +65,7 @@ const Messages = () => {
       <Link to={`/chat/${chat.id}`} key={chat.id} className="chat-item">
         <div className="chat-avatar">
           <img 
-            src={chat?.participants?.[0]?.photo_url || "/default-chat.png"} 
+            src={chat?.participants?.[0]?.photo_url || "/fallback.png"} 
             alt={chat.name || "Чат"} 
           />
         </div>

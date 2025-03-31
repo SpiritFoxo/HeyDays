@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import "./Friends.css";
+import "../css/Friends.css";
 import { getFriends, getFriendRequests, acceptFriendRequest, declineFriendRequest } from '../api/friends';
 
 const Friends = () => {
@@ -48,7 +48,7 @@ const Friends = () => {
               friends.map(({ id, name, surname, profile_photo }) => (
                 <div className="friend-item" key={id}>
                   <div className="profile-image">
-                    <img className="avatar" src={profile_photo || "/pfp.png"} alt={name} />
+                    <img className="avatar" src={profile_photo || "/fallback.png"} alt={name} />
                   </div>
                   <div className="friend-info">
                     <span className="friend-name">{name} {surname}</span>
@@ -65,7 +65,7 @@ const Friends = () => {
               requests.map(({ id, name, surname, profile_photo }) => (
                 <div className="friend-item" key={id}>
                   <div className="profile-image">
-                    <img className="avatar" src={profile_photo || "/pfp.png"} alt={name} />
+                    <img className="avatar" src={profile_photo || "/fallback.png"} alt={name} />
                   </div>
                   <div className="friend-info">
                     <span className="friend-name">{name} {surname}</span>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
-import './MainPage.css';
+import '../css/MainPage.css';
 import Profile from "../components/Profile"
 import Feed from '../components/Feed';
 import Messages from '../components/Messages';
